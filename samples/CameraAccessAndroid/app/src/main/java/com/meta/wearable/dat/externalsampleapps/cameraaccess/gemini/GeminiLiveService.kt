@@ -102,16 +102,20 @@ class GeminiLiveService {
             }
 
             override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
-                Log.d(TAG, "WebSocket closing: $code $reason")
-                _connectionState.value = GeminiConnectionState.Disconnected
+                val msg = closeMessage(code, reason)
+                Log.d(TAG, "WebSocket closing: $msg")
+                _connectionState.value = GeminiConnectionState.Error(msg)
                 _isModelSpeaking.value = false
                 resolveConnect(false)
-                onDisconnected?.invoke("Connection closed (code $code: $reason)")
+                onDisconnected?.invoke(msg)
             }
 
             override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
-                Log.d(TAG, "WebSocket closed: $code $reason")
-                _connectionState.value = GeminiConnectionState.Disconnected
+                val msg = closeMessage(code, reason)
+                Log.d(TAG, "WebSocket closed: $msg")
+                if (_connectionState.value !is GeminiConnectionState.Error) {
+                    _connectionState.value = GeminiConnectionState.Disconnected
+                }
                 _isModelSpeaking.value = false
             }
         })
@@ -208,6 +212,11 @@ class GeminiLiveService {
         timeoutTimer?.cancel()
         timeoutTimer = null
         cb?.invoke(success)
+    }
+
+    private fun closeMessage(code: Int, reason: String): String {
+        val reasonText = reason.ifBlank { "No reason provided" }
+        return "Connection closed by Gemini (code $code): $reasonText"
     }
 
     private fun sendSetupMessage() {

@@ -77,7 +77,8 @@ contains `github_token=...`, or export `GITHUB_TOKEN` before running Gradle. The
 token needs `read:packages` scope.
 
 **Gemini API key rejected** -- Use a Google AI Studio key from
-<https://aistudio.google.com/apikey>. Gemini keys normally start with `AIza`.
+<https://aistudio.google.com/apikey>. If the app still rejects a freshly copied
+key, confirm there are no leading/trailing spaces.
 
 **OpenClaw is not reachable from Android** -- If the phone is connected by USB,
 run `adb reverse tcp:18789 tcp:18789` and use `http://127.0.0.1:18789` from the

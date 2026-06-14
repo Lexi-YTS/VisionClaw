@@ -48,8 +48,8 @@ object GeminiConfig {
         if (trimmed.isEmpty() || trimmed == GEMINI_API_KEY_PLACEHOLDER) {
             return "Gemini API key not configured. Open Settings and add your key from https://aistudio.google.com/apikey"
         }
-        if (!trimmed.startsWith("AIza")) {
-            return "Gemini API key format looks invalid. Google AI Studio keys usually start with AIza."
+        if (!(trimmed.startsWith("AIza") || trimmed.startsWith("AQ."))) {
+            return "Gemini API key format looks invalid. Check the value copied from Google AI Studio."
         }
         if (trimmed.length < 35) {
             return "Gemini API key looks too short. Check the value copied from Google AI Studio."
