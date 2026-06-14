@@ -373,7 +373,9 @@ If the phone is connected over USB, prefer `adb reverse tcp:18789 tcp:18789` and
 
 **Gradle sync fails with 401 Unauthorized** -- Your GitHub token is missing, invalid, or does not have `read:packages` scope. Check `samples/CameraAccessAndroid/local.properties` for `github_token=...`, or export `GITHUB_TOKEN`. With GitHub CLI, run `gh auth refresh -s read:packages` and then `samples/CameraAccessAndroid/scripts/configure-github-packages.sh`.
 
-**Gemini API key rejected immediately** -- Android validates that the configured Gemini key looks like a Google AI Studio key. It should normally start with `AIza`. Generate one at [aistudio.google.com/apikey](https://aistudio.google.com/apikey).
+**Gemini API key rejected immediately** -- Android validates that the configured Gemini key looks like a Google AI Studio key. Current AI Studio keys can start with `AIza` or `AQ.`. Generate one at [aistudio.google.com/apikey](https://aistudio.google.com/apikey), then save it in the in-app Settings or `Secrets.kt`.
+
+**Gemini WebSocket closes with code 1008 / project denied access** -- The key is syntactically accepted, but the Google project is not allowed to start the selected Gemini Live preview model. Confirm the key belongs to the billing-enabled AI Studio project, test the same project/model in AI Studio Stream, then try a fresh billing-enabled AI Studio project or contact Google support with the project ID, model name, region, and close reason.
 
 **Gemini WebSocket times out** -- The Gemini Live API sends binary WebSocket frames. If you're building a custom client, make sure to handle both text and binary frame types.
 
