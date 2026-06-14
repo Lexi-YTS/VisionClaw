@@ -130,6 +130,13 @@ github_token=YOUR_GITHUB_TOKEN
 
 > **Tip:** If you have the `gh` CLI installed, you can run `gh auth token` to get a valid token. Make sure it has `read:packages` scope -- if not, run `gh auth refresh -s read:packages`.
 >
+> You can also let the Android helper script write the current `gh` token into `local.properties` without printing it:
+>
+> ```bash
+> cd samples/CameraAccessAndroid
+> scripts/configure-github-packages.sh
+> ```
+>
 > **Note:** GitHub Packages requires authentication even for public repositories. The 401 error means your token is missing or invalid.
 
 ### 3. Add your secrets
@@ -146,6 +153,15 @@ Edit `Secrets.kt` with your [Gemini API key](https://aistudio.google.com/apikey)
 1. Let Gradle sync in Android Studio (it will download the DAT SDK from GitHub Packages)
 2. Select your Android phone as the target device
 3. Click Run (Shift+F10)
+
+For repeatable command-line install and OpenClaw USB forwarding:
+
+```bash
+cd samples/CameraAccessAndroid
+scripts/install-debug.sh
+```
+
+This builds `app-debug.apk`, installs it on the connected phone, launches the app, and sets `adb reverse tcp:18789 tcp:18789` so Android can reach a loopback-only OpenClaw gateway at `http://127.0.0.1:18789`.
 
 > **Wireless debugging:** You can also install via ADB wirelessly. Enable **Wireless debugging** in your phone's Developer Options, then pair with `adb pair <ip>:<port>`.
 
@@ -343,6 +359,8 @@ For full details, see [`samples/CameraAccess/CameraAccess/WebRTC/README.md`](sam
 
 **OpenClaw connection timeout** -- Make sure your phone and Mac are on the same Wi-Fi network, the gateway is running (`openclaw gateway restart`), and the hostname matches your Mac's Bonjour name.
 
+If the phone is connected over USB, prefer `adb reverse tcp:18789 tcp:18789` and set the Android OpenClaw host to `http://127.0.0.1` with port `18789`. `samples/CameraAccessAndroid/scripts/install-debug.sh` does the reverse step automatically.
+
 **OpenClaw opens duplicate browser tabs** -- This is a known upstream issue in OpenClaw's CDP (Chrome DevTools Protocol) connection management ([#13851](https://github.com/nichochar/openclaw/issues/13851), [#12317](https://github.com/nichochar/openclaw/issues/12317)). Using `profile: "openclaw"` (managed Chrome) instead of the default extension relay may improve stability.
 
 ### iOS-specific
@@ -353,7 +371,9 @@ For full details, see [`samples/CameraAccess/CameraAccess/WebRTC/README.md`](sam
 
 ### Android-specific
 
-**Gradle sync fails with 401 Unauthorized** -- Your GitHub token is missing or doesn't have `read:packages` scope. Check `local.properties` for `gpr.user` and `gpr.token`. Generate a new token at [github.com/settings/tokens](https://github.com/settings/tokens).
+**Gradle sync fails with 401 Unauthorized** -- Your GitHub token is missing, invalid, or does not have `read:packages` scope. Check `samples/CameraAccessAndroid/local.properties` for `github_token=...`, or export `GITHUB_TOKEN`. With GitHub CLI, run `gh auth refresh -s read:packages` and then `samples/CameraAccessAndroid/scripts/configure-github-packages.sh`.
+
+**Gemini API key rejected immediately** -- Android validates that the configured Gemini key looks like a Google AI Studio key. It should normally start with `AIza`. Generate one at [aistudio.google.com/apikey](https://aistudio.google.com/apikey).
 
 **Gemini WebSocket times out** -- The Gemini Live API sends binary WebSocket frames. If you're building a custom client, make sure to handle both text and binary frame types.
 

@@ -23,9 +23,41 @@ A sample Android application demonstrating integration with Meta Wearables Devic
 
 1. Clone this repository
 1. Open the project in Android Studio
-1. Add your personal access token (classic) to the `local.properties` file (see [SDK for Android setup](https://wearables.developer.meta.com/docs/getting-started-toolkit/#sdk-for-android-setup))
+1. Add your personal access token (classic) to the `local.properties` file as `github_token=...` (see [SDK for Android setup](https://wearables.developer.meta.com/docs/getting-started-toolkit/#sdk-for-android-setup))
 1. Click **File** > **Sync Project with Gradle Files**
 1. Click **Run** > **Run...** > **app**
+
+If you use the GitHub CLI, the helper script can write the current token into
+`local.properties` without printing it:
+
+```bash
+scripts/configure-github-packages.sh
+```
+
+The token must include `read:packages`. If it does not, run:
+
+```bash
+gh auth refresh -s read:packages
+```
+
+### Command-line install
+
+To build, install, launch, and forward the local OpenClaw gateway through USB:
+
+```bash
+scripts/install-debug.sh
+```
+
+This sets:
+
+```bash
+adb reverse tcp:18789 tcp:18789
+```
+
+With that reverse tunnel active, configure Android OpenClaw settings as:
+
+- Host: `http://127.0.0.1`
+- Port: `18789`
 
 ## Running the app
 
@@ -39,6 +71,18 @@ A sample Android application demonstrating integration with Meta Wearables Devic
    - Disconnect from the device
 
 ## Troubleshooting
+
+**Gradle sync fails with 401 Unauthorized** -- Make sure `local.properties`
+contains `github_token=...`, or export `GITHUB_TOKEN` before running Gradle. The
+token needs `read:packages` scope.
+
+**Gemini API key rejected** -- Use a Google AI Studio key from
+<https://aistudio.google.com/apikey>. Gemini keys normally start with `AIza`.
+
+**OpenClaw is not reachable from Android** -- If the phone is connected by USB,
+run `adb reverse tcp:18789 tcp:18789` and use `http://127.0.0.1:18789` from the
+app. If using Wi-Fi instead, the OpenClaw gateway must bind to LAN/tailnet and
+the phone must be on the same reachable network.
 
 For issues related to the Meta Wearables Device Access Toolkit, please refer to the [developer documentation](https://wearables.developer.meta.com/docs/develop/) or visit our [discussions forum](https://github.com/facebook/meta-wearables-dat-android/discussions)
 

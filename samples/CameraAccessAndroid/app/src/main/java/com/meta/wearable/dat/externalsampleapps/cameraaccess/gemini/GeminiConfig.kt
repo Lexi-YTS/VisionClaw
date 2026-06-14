@@ -3,6 +3,8 @@ package com.meta.wearable.dat.externalsampleapps.cameraaccess.gemini
 import com.meta.wearable.dat.externalsampleapps.cameraaccess.settings.SettingsManager
 
 object GeminiConfig {
+    private const val GEMINI_API_KEY_PLACEHOLDER = "YOUR_GEMINI_API_KEY"
+
     const val WEBSOCKET_BASE_URL =
         "wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent"
     const val MODEL = "models/gemini-2.5-flash-native-audio-preview-12-2025"
@@ -34,12 +36,26 @@ object GeminiConfig {
         get() = SettingsManager.openClawGatewayToken
 
     fun websocketURL(): String? {
-        if (apiKey == "YOUR_GEMINI_API_KEY" || apiKey.isEmpty()) return null
+        if (!isConfigured) return null
         return "$WEBSOCKET_BASE_URL?key=$apiKey"
     }
 
     val isConfigured: Boolean
-        get() = apiKey != "YOUR_GEMINI_API_KEY" && apiKey.isNotEmpty()
+        get() = apiKeyConfigurationError() == null
+
+    fun apiKeyConfigurationError(): String? {
+        val trimmed = apiKey.trim()
+        if (trimmed.isEmpty() || trimmed == GEMINI_API_KEY_PLACEHOLDER) {
+            return "Gemini API key not configured. Open Settings and add your key from https://aistudio.google.com/apikey"
+        }
+        if (!trimmed.startsWith("AIza")) {
+            return "Gemini API key format looks invalid. Google AI Studio keys usually start with AIza."
+        }
+        if (trimmed.length < 35) {
+            return "Gemini API key looks too short. Check the value copied from Google AI Studio."
+        }
+        return null
+    }
 
     val isOpenClawConfigured: Boolean
         get() = openClawGatewayToken != "YOUR_OPENCLAW_GATEWAY_TOKEN"

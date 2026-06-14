@@ -51,13 +51,18 @@ class GeminiSessionViewModel : ViewModel() {
     fun startSession() {
         if (_uiState.value.isGeminiActive) return
 
-        if (!GeminiConfig.isConfigured) {
+        GeminiConfig.apiKeyConfigurationError()?.let { error ->
+            Log.w(TAG, error)
             _uiState.value = _uiState.value.copy(
-                errorMessage = "Gemini API key not configured. Open Settings and add your key from https://aistudio.google.com/apikey"
+                errorMessage = error
             )
             return
         }
 
+        Log.d(
+            TAG,
+            "Starting Gemini session (apiKeyLength=${GeminiConfig.apiKey.length}, openClawConfigured=${GeminiConfig.isOpenClawConfigured})"
+        )
         _uiState.value = _uiState.value.copy(isGeminiActive = true)
 
         // Wire audio callbacks
