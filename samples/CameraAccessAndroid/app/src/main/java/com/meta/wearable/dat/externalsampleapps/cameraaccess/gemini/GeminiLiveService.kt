@@ -191,13 +191,8 @@ class GeminiLiveService {
         if (_connectionState.value != GeminiConnectionState.Ready) return
         sendExecutor.execute {
             val json = JSONObject().apply {
-                put("clientContent", JSONObject().apply {
-                    put("turns", JSONArray().put(JSONObject().apply {
-                        put("role", "user")
-                        put("parts", JSONArray().put(JSONObject().apply {
-                            put("text", text)
-                        }))
-                    }))
+                put("realtimeInput", JSONObject().apply {
+                    put("text", text)
                 })
             }
             webSocket?.send(json.toString())
@@ -226,7 +221,7 @@ class GeminiLiveService {
                 put("generationConfig", JSONObject().apply {
                     put("responseModalities", JSONArray().put("AUDIO"))
                     put("thinkingConfig", JSONObject().apply {
-                        put("thinkingBudget", 0)
+                        put("thinkingLevel", "minimal")
                     })
                 })
                 put("systemInstruction", JSONObject().apply {
